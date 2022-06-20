@@ -1,10 +1,11 @@
 local surface, monitor, width, height, screen, font, cardBg, cardBack, drive, buttons, deck, bigfont, lastBet, speaker, bouncingCards, logo
 
 MAX_BET = 128
-MAINFRAME_ID = 57
+MAINFRAME_ID = 15
 
 math.round = function(x) return x + 0.5 - (x + 0.5) % 1 end
 function shuffle(tbl)
+  print("shuffle")
   for i = #tbl, 2, -1 do
     local j = math.random(i)
     tbl[i], tbl[j] = tbl[j], tbl[i]
@@ -13,8 +14,9 @@ function shuffle(tbl)
 end
 
 function setup()
+  print("setup")
   surface = dofile("surface")
-  monitor = peripheral.wrap("monitor_8")
+  monitor = peripheral.wrap("monitor_1")
 	drive = peripheral.wrap("bottom")
 	rednet.open("right")
 	speaker = peripheral.find("speaker")
@@ -57,6 +59,7 @@ function setup()
 end
 
 function drawCard(cardID)
+	print("drawCard")
 	local number = cardID:sub(1, 1)
 	if number == "T" then
 		number = "10"
@@ -71,6 +74,7 @@ function drawCard(cardID)
 end
 
 function run()
+  print("run")
   local club = surface.load("club.nfp")
   screen:clear(colors.green)
   --screen:drawSurfaceSmall(club, 0, 0)
@@ -83,6 +87,7 @@ function run()
 end
 
 function getButtonSurface(text, bg)
+  print("getButtonSurface")
   local textSize = surface.getTextSize(text, font)
   local button = surface.create(textSize + 2, 7)
   button:fillRect(0,0,textSize+2, 7, bg)
@@ -91,6 +96,7 @@ function getButtonSurface(text, bg)
 end
 
 function betSlider(balance, func)
+	print("betSlider")
 	local value
 	if lastBet ~= nil then
 		value = math.min(balance, lastBet)
@@ -135,6 +141,7 @@ function betSlider(balance, func)
 end
 
 function waitForButtonPress(ox, oy)
+  print("waitForButtonPress")
   local pressed = false
   while not pressed do
 		local event, button, px, py = os.pullEvent("monitor_touch")
@@ -152,6 +159,7 @@ end
 
 
 function button(surface, text, bg, x, y, func, center)
+  print("button")
   local button = getButtonSurface(text, bg)
   if center then
     x = math.floor(x - button.width / 2)
@@ -162,6 +170,7 @@ function button(surface, text, bg, x, y, func, center)
 end
 
 function getHandScore(hand)
+	print("getHandScore")
 	local sum = 0
 	local aceCount = 0
 	for _,card in ipairs(hand) do
@@ -186,6 +195,7 @@ function getHandScore(hand)
 end
 
 function getPlayerBalance(player)
+	print("getPlayerBalance")
 	rednet.send(MAINFRAME_ID, {type="getPlayerBalance", player=player}, "otto")
 	local _, data = rednet.receive("otto")
 	if not data then
@@ -195,6 +205,7 @@ function getPlayerBalance(player)
 end
 
 function setPlayerBalance(player, balance)
+	print("setPlayerBalance")
 	rednet.send(MAINFRAME_ID, {type="setPlayerBalance", player=player, balance=balance}, "otto")
 	rednet.receive("otto")
 	local filePath = fs.combine(drive.getMountPath(), "bal")
@@ -234,6 +245,7 @@ end
 
 local jX, aX = 0,-30
 function drawIdleScreen()
+  print("drawIdleScreen")
   screen:clear(colors.green)
 	for i,card in ipairs(bouncingCards) do
 		local x = card.x
@@ -258,6 +270,7 @@ function drawIdleScreen()
 end
 
 function quit()
+  print("quit")
   local player = drive.getDiskID()
   local name, balance = getPlayerBalance(player)
   if balance ~= nil then
@@ -275,7 +288,7 @@ function quit()
 end
 
 function loop()
-
+  print("loop")
   screen:clear(colors.green)
   local player = drive.getDiskID()
   local _,balance = getPlayerBalance(player)
@@ -304,6 +317,7 @@ function loop()
 	local hasDoubled = false
 
 	local function drawPlayerHand(hand, y, hideCard)
+		print("drawPlayerHand")
 		local cardDeltaX = cardBack.width + 2
 		if cardDeltaX * #hand > screen.width then
 			cardDeltaX = (screen.width - 7) / #hand
@@ -322,6 +336,7 @@ function loop()
 	end
 	
 	local function drawBottomButtons(buttons)
+		print("drawBottomButtons")
 		local totalWidth = 0
 		for _, button in ipairs(buttons) do
 			button.width = surface.getTextSize(button.text, font) + 4
@@ -336,6 +351,7 @@ function loop()
 	end
 
 	local function drawHands(hideDealerCard, showPlayerButtons)
+		print("drawHands")
 		screen:clear(colors.green)
 		drawPlayerHand(dealerHand, 5, hideDealerCard)
 		drawPlayerHand(playerHand, screen.height - 10 - cardBack.height)
