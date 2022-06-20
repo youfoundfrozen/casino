@@ -197,10 +197,13 @@ end
 function getPlayerBalance(player)
 	print("getPlayerBalance")
 	rednet.send(MAINFRAME_ID, {type="getPlayerBalance", player=player}, "otto")
+	print("line 200")
 	local _, data = rednet.receive("otto")
 	if not data then
+		print("line 203")
 		return nil
 	end
+	print("line 206")
 	return data.name, data.balance
 end
 
